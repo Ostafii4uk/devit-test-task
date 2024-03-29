@@ -11,7 +11,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <h1>Devit Test Task</h1>
+        <h1>DevIT Test Task</h1>
         <Form />
       </main>
     </>

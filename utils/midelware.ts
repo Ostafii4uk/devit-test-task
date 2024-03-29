@@ -1,10 +1,12 @@
+import { NextApiRequest, NextApiResponse } from 'next'
+
 const rateLimitMap = new Map()
 
-export default function rateLimitMiddleware(handler) {
-  return (req, res) => {
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+export default function rateLimitMiddleware(handler: any) {
+  return (req: NextApiRequest, res: NextApiResponse) => {
+    const ip = req.headers['x-forwarded-for']
     const limit = 50 // Limiting requests to 50 per sec per IP
-    const windowMs =  1000 // 1 second
+    const windowMs = 1000 // 1 second
 
     if (!rateLimitMap.has(ip)) {
       rateLimitMap.set(ip, {

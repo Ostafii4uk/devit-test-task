@@ -1,27 +1,40 @@
 import { useState } from 'react'
-
 import styles from './form.module.scss'
 
-async function sendRequest(index: number) {
-  const response = await fetch('/api/devit', {
-    method: 'POST',
-    body: JSON.stringify({ index }),
-    headers: {
-      'Conte-Type': 'application/json'
-    }
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong!')
-  }
+interface ResponseData {
+  index: number
 }
 
 export const Form = () => {
   const [limit, setLimit] = useState('')
-  let countRequests = 0
+  const [isFetching, setIsFetching] = useState(false)
+  const [responseData, setResponseData] = useState<ResponseData[]>([])
+
   const MAX_REQUEST = 1000
+  const REQUEST_INTERVAL_TIME = 1000
+  let countRequests = 0
+
+  async function sendRequest(index: number) {
+    const response = await fetch('/api/devit', {
+      method: 'POST',
+      body: JSON.stringify({ index }),
+      headers: {
+        'Conte-Type': 'application/json'
+      }
+    })
+
+    try {
+      const data = await response.json()
+
+      setResponseData((prevResponseData) => [...prevResponseData, data])
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong!')
+      }
+    } catch (error) {
+      throw new Error('Something went wrong!')
+    }
+  }
 
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLimit(event.target.value)
@@ -32,6 +45,7 @@ export const Form = () => {
 
     const requestsFunction = () => {
       if (countRequests < MAX_REQUEST) {
+        setIsFetching(true)
 
         for (let index = 1; index <= Number(limit); index++) {
           sendRequest(index + countRequests)
@@ -39,11 +53,12 @@ export const Form = () => {
 
         countRequests += Number(limit)
       } else {
+        setIsFetching(false)
         clearInterval(requestInterval)
       }
     }
 
-    const requestInterval = setInterval(requestsFunction, 1000)
+    const requestInterval = setInterval(requestsFunction, REQUEST_INTERVAL_TIME)
   }
 
   return (
@@ -54,10 +69,15 @@ export const Form = () => {
         max="100"
         value={limit}
         onChange={onChangeHandler}
-        placeholder='Type limit of requests'
+        placeholder='Type limit of requests to start'
         required
       />
-      <button disabled={!limit}>Start</button>
+      <button disabled={!Number(limit) || isFetching}>Start</button>
+      {Boolean(responseData.length) && (
+        <ul>
+          {responseData.map(item => <li key={item.index}>Request index: {item.index}</li>)}
+        </ul>
+      )}
     </form>
   )
 }

@@ -6,10 +6,11 @@
   gap: 50px;
   background-color: var(--color-grey-100);
   border-radius: 6px;
-  min-width: 400px;
+  min-width: 320px;
   min-height: 200px;
 
   input {
+    height: 40px;
     border: 1px solid var(--color-grey-400);
     background-color: var(--color-grey-50);
     padding: var(--size-1);
@@ -17,6 +18,7 @@
   }
 
   button {
+    height: 40px;
     font: inherit;
     cursor: pointer;
     background-color: var(--color-primary-700);
@@ -30,5 +32,21 @@
       background-color: var(--color-primary-500);
       border-color: var(--color-primary-500);
     }
+
+    &:disabled {
+      background-color: var(--color-grey-400);
+      border-color: var(--color-grey-500);
+      color: var(--color-grey-600);
+      cursor: not-allowed;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding: var(--size-2) var(--size-4);
+    background-color: white;
+    max-height: 300px;
+    border-radius: 4px;
+    overflow: auto;
   }
 }
