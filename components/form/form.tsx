@@ -5,7 +5,7 @@ import styles from './form.module.scss'
 async function sendRequest(index: number) {
   const response = await fetch('/api/devit', {
     method: 'POST',
-    body: JSON.stringify(index),
+    body: JSON.stringify({ index }),
     headers: {
       'Conte-Type': 'application/json'
     }
