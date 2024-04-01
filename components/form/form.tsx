@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import styles from './form.module.scss'
+import { sendRequest } from '@/services/send-request.services'
+import { APPLICATION_CONSTANTS } from '@/constants/application.constants'
 
 interface ResponseData {
   index: number
@@ -9,31 +11,14 @@ export const Form = () => {
   const [limit, setLimit] = useState('')
   const [isFetching, setIsFetching] = useState(false)
   const [responseData, setResponseData] = useState<ResponseData[]>([])
+  const { MAX_REQUEST, REQUEST_INTERVAL_TIME } = APPLICATION_CONSTANTS
 
-  const MAX_REQUEST = 1000
-  const REQUEST_INTERVAL_TIME = 1000
   let countRequests = 0
 
-  async function sendRequest(index: number) {
-    const response = await fetch('/api/devit', {
-      method: 'POST',
-      body: JSON.stringify({ index }),
-      headers: {
-        'Conte-Type': 'application/json'
-      }
-    })
+  const updateResponseData = async (index: number) => {
+    const response = await sendRequest(index)
 
-    try {
-      const data = await response.json()
-
-      setResponseData((prevResponseData) => [...prevResponseData, data])
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong!')
-      }
-    } catch (error) {
-      throw new Error('Something went wrong!')
-    }
+    setResponseData((prevResponseData) => [...prevResponseData, response])
   }
 
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +33,7 @@ export const Form = () => {
         setIsFetching(true)
 
         for (let index = 1; index <= Number(limit); index++) {
-          sendRequest(index + countRequests)
+          updateResponseData(index + countRequests)
         }
 
         countRequests += Number(limit)
@@ -69,7 +54,7 @@ export const Form = () => {
         max="100"
         value={limit}
         onChange={onChangeHandler}
-        placeholder='Type limit of requests to start'
+        placeholder="Type limit of requests to start"
         required
       />
       <button disabled={!Number(limit) || isFetching}>Start</button>

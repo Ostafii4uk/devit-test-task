@@ -1,12 +1,15 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { APPLICATION_CONSTANTS } from '@/constants/application.constants'
+import { STATUS_CODES } from '@/constants/status-codes.constants'
 
 const rateLimitMap = new Map()
 
-export default function rateLimitMiddleware(handler: any) {
+export const rateLimitMiddleware = (handler: any) => {
+  const { LIMIT_REQUESTS, REQUESTS_PER_MS } = APPLICATION_CONSTANTS
+  const { CLIENT_ERROR } = STATUS_CODES
+
   return (req: NextApiRequest, res: NextApiResponse) => {
     const ip = req.headers['x-forwarded-for']
-    const limit = 50 // Limiting requests to 50 per sec per IP
-    const windowMs = 1000 // 1 second
 
     if (!rateLimitMap.has(ip)) {
       rateLimitMap.set(ip, {
@@ -17,13 +20,13 @@ export default function rateLimitMiddleware(handler: any) {
 
     const ipData = rateLimitMap.get(ip)
 
-    if (Date.now() - ipData.lastReset > windowMs) {
+    if (Date.now() - ipData.lastReset > REQUESTS_PER_MS) {
       ipData.count = 0
       ipData.lastReset = Date.now()
     }
 
-    if (ipData.count >= limit) {
-      return res.status(429).send('Too Many Requests')
+    if (ipData.count >= LIMIT_REQUESTS) {
+      return res.status(CLIENT_ERROR.TOO_MANY_REQUESTS).send('Too Many Requests')
     }
 
     ipData.count += 1

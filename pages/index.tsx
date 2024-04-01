@@ -1,7 +1,7 @@
-import Head from "next/head";
-import { Form } from '@/components/form';
+import Head from 'next/head'
+import { Form } from '@/components/form'
 
-export default function Home() {
+const Home = () => {
   return (
     <>
       <Head>
@@ -15,5 +15,7 @@ export default function Home() {
         <Form />
       </main>
     </>
-  );
+  )
 }
+
+export default Home
